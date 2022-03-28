@@ -2,9 +2,6 @@ import csv
 from io import TextIOWrapper
 from zipfile import ZipFile
 
-# ['' - 0, 'Film' - 1, 'Oscar Year' - 2, 'Film Studio/Producer(s)' - 3, 'Award' - 4, 'Year of Release' - 5, 'Movie Time' - 6,
-# 'Movie Genre' - 7, 'IMDB Rating' - 8, 'IMDB Votes' - 9, 'Content Rating' - 10, 'Directors' - 11, 'Authors' - 12, 'Actors' - 13, 'Film ID' - 14]
-
 TABLES = {"Movie_Person": [[11, 12, 13], set()],
           "Author": [[12], set()],
           "Actor": [[13], set()],
@@ -20,6 +17,24 @@ TABLES = {"Movie_Person": [[11, 12, 13], set()],
           "Type_Of": [[14, 7], set()],
           "Rate": [[14, 10], set()]
           }
+
+COLUMNS = [
+        '',
+        'Film',
+        'Oscar Year',
+        'Film Studio/Producer(s)',
+        'Award',
+        'Year of Release',
+        'Movie Time',
+        'Movie Genre',
+        'IMDB Rating',
+        'IMDB Votes',
+        'Content Rating',
+        'Directors',
+        'Authors',
+        'Actors',
+        'Film ID',
+    ]
 RELATIONSHIPS = {"Wrote_The", "Act_In", "Direct_The", "Type_Of", "Rate"}
 
 # process_file goes over all rows in original csv file, and sends each row to process_row()
@@ -57,10 +72,6 @@ def process_file():
 
                 process_row(row)
 
-
-    # flush and close the file. close all of your files.
-    # for table in TABLES:
-    #     table.close()
     write_to_csv()
 
 
@@ -80,7 +91,7 @@ def process_row(row):
             splits_val = split_list_value(row[idxes[0]])
             for elem in splits_val:
                 if not elem: break
-                TABLES[table][1].add(elem)
+                TABLES[table][1].add((elem,))
 
         elif table in RELATIONSHIPS:
             splits_val = split_list_value(row[idxes[1]])
@@ -90,35 +101,34 @@ def process_row(row):
 
         elif table == "Movie_Person":
             idxes = TABLES[table][0]
-            for i in idxes:
-                for name in split_list_value(row[i]):
+            for j in idxes:
+                for name in split_list_value(row[j]):
                     if not name: break
-                    TABLES[table][1].add(name)
+                    TABLES[table][1].add((name,))
 
         else:
             idxes = TABLES[table][0]
             attributes = []
             for i in idxes:
-                if not row[i]: break
+                if row[i] == '': break
                 attributes.append(row[i])
-            TABLES[table][1].add(tuple(attributes))
+            if len(attributes): TABLES[table][1].add(tuple(attributes))
 
 
 
 
 def write_to_csv():
-    titles = get_names()
+    titles = COLUMNS
     for table in TABLES:
         out_file = open(f'{table}.csv', 'w')
         out_writer = csv.writer(out_file, delimiter=",",
                                 quoting=csv.QUOTE_NONE)
         if table == 'Movie_Person':
-            movie_person_title = f'{titles[1]}/{titles[2]}/{titles[3]}'
+            movie_person_title = 'Movie_Person'
             out_writer.writerow([movie_person_title])
         else:
             out_writer.writerow([titles[title] for title in TABLES[table][0]])
-
-        out_writer.writerows(TABLES[table][1])
+        out_writer.writerows(list(TABLES[table][1]))
 
         out_file.close()
 
@@ -126,31 +136,22 @@ def write_to_csv():
 
 def get_names():
     return [
-        '',
-        'Film',
-        'Oscar Year',
-        'Film Studio/Producer(s)',
-        'Award',
-        'Year of Release',
-        'Movie Time',
-        'Movie Genre',
-        'IMDB Rating',
-        'IMDB Votes',
-        'Content Rating',
-        'Directors',
-        'Authors',
-        'Actors',
-        'Film ID',
-    ]
+        "Movie_Person",
+        "Author",
+        "Actor",
+        "Director",
+        "Film",
+        "Awards",
+        "Genre",
+        "IMDB",
+        "Content_Rating",
+        "Wrote_The",
+        "Act_In",
+        "Direct_The",
+        "Type_Of",
+        "Rate"
+            ]
 
 
 if __name__ == "__main__":
-
-    # write_to_csv()
     process_file()
-    # for i in list(TABLES['Movie_Person'][1]):
-    #     print(i)
-
-    # print(TABLES['Wrote_The'][1])
-    # print(TABLES["Type Of"])
-    # print(TABLES["Genre"])

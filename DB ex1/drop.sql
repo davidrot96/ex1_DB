@@ -1,16 +1,16 @@
-drop table awards;
-drop table type_of;
-drop table rate;
-drop table imbd;
-drop table content_rating;
-drop table wrote_the;
-drop table act_in;
-drop table direct_the;
-drop table genre;
-drop table film;
-drop table actor;
-drop table director;
-drop table author;
-drop table movie_person;
+drop table Awards;
+drop table Type_Of;
+drop table Rate;
+drop table IMDB;
+drop table Content_Rating;
+drop table Wrote_The;
+drop table Act_In;
+drop table Direct_The;
+drop table Genre;
+drop table Actor;
+drop table Director;
+drop table Author;
+drop table Film;
+drop table Movie_Person;
 
 

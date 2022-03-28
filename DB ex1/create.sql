@@ -1,37 +1,38 @@
-create table movie_person(
+create table Movie_Person(
     name varchar(100),
     primary key (name)
 );
 
-create table author(
+create table Author(
     name varchar(100),
     primary key (name),
     foreign key (name) references movie_person(name)
 );
 
 
-create table actor(
+create table Actor(
     name varchar(100),
     primary key (name),
     foreign key (name) references movie_person(name)
 );
 
-create table director(
+create table Director(
     name varchar(100),
     primary key (name),
     foreign key (name) references movie_person(name)
 );
 
-create table film(
-    id varchar(100),
+create table Film(
+
     name varchar(100),
+    producer varchar(100),
     year_of_release varchar(100),
     movie_time varchar(100),
-    producer varchar(100),
+    id varchar(100),
     primary key (id)
 );
 
-create table awards(
+create table Awards(
     id varchar(100),
     oscar_year varchar(100),
     awards varchar(100),
@@ -39,12 +40,12 @@ create table awards(
     foreign key (id) references film(id)
 );
 
-create table genre(
+create table Genre(
     genre varchar(100),
-    primary key (genre),
+    primary key (genre)
 );
 
-create table imdb(
+create table IMDB(
     id varchar(100),
     votes varchar(100),
     rate varchar(100),
@@ -52,46 +53,47 @@ create table imdb(
     foreign key (id) references film(id)
 );
 
-create table content_rating(
+create table Content_Rating(
     rate varchar(100),
     primary key (rate)
 );
 
-create table wrote_the(
-    name varchar(100),
+create table Wrote_The(
     id varchar(100),
+    name varchar(100),
     primary key (name, id),
     foreign key (name) references author(name),
     foreign key (id) references film(id)
 );
 
-create table act_in(
-    name varchar(100),
+create table Act_In(
     id varchar(100),
+    name varchar(100),
     primary key (name, id),
     foreign key (name) references actor(name),
     foreign key (id) references film(id)
 );
 
-create table direct_the(
-    name varchar(100),
+create table Direct_The(
     id varchar(100),
+    name varchar(100),
     primary key (name, id),
     foreign key (name) references director(name),
     foreign key (id) references film(id)
 );
 
-create table type_of(
+create table Type_Of(
     id varchar(100),
     genre varchar(100),
-    primary key (director_name, film_name, film_id),
+    primary key (id, genre),
     foreign key (id) references film(id),
     foreign key (genre) references genre(genre)
 );
 
-create table rate(
+create table Rate(
     id varchar(100),
     rate varchar(100),
     primary key (id, rate),
-    foreign key (id) references film(id),
-    foreign key (rate) references content_rating(rate)
+    foreign key (id) references film (id),
+    foreign key (rate) references content_rating (rate)
+);
