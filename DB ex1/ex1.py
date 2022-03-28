@@ -61,6 +61,7 @@ def process_file():
     # flush and close the file. close all of your files.
     # for table in TABLES:
     #     table.close()
+    write_to_csv()
 
 
 # return a list of all the inner values in the given list_value.
@@ -76,14 +77,12 @@ def process_row(row):
     for table in TABLES:
         idxes = TABLES[table][0]
         if table == "Author" or table == "Actor" or table == "Director" or table == "Genre":
-            # idx = TABLES[table][0][0]
             splits_val = split_list_value(row[idxes[0]])
             for elem in splits_val:
                 if not elem: break
                 TABLES[table][1].add(elem)
 
         elif table in RELATIONSHIPS:
-            # idx = TABLES[table][0][1]
             splits_val = split_list_value(row[idxes[1]])
             for genre in splits_val:
                 if not genre: break
@@ -104,7 +103,7 @@ def process_row(row):
                 attributes.append(row[i])
             TABLES[table][1].add(tuple(attributes))
 
-    write_to_csv()
+
 
 
 def write_to_csv():
