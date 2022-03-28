@@ -2,39 +2,28 @@ import csv
 from io import TextIOWrapper
 from zipfile import ZipFile
 
-# opens file for oscars table.
-# CHANGE!
-# outfile = open("oscars.csv", 'w', )
-awards = open("awards.csv", 'w', )
-genre = open("genre.csv", 'w', )
-imbd = open("imbd.csv", 'w', )
-content_rating = open("content_rating.csv", 'w', )
-wrote_the = open("wrote_the.csv", 'w', )
-act_in = open("act_in.csv", 'w', )
-direct_the = open("direct_the.csv", 'w', )
-film = open("film.csv", 'w', )
-actor = open("actor.csv", 'w', )
-director = open("director.csv", 'w', )
-author = open("author.csv", 'w', )
-movie_person = open("movie_person.csv", 'w', )
+# ['' - 0, 'Film' - 1, 'Oscar Year' - 2, 'Film Studio/Producer(s)' - 3, 'Award' - 4, 'Year of Release' - 5, 'Movie Time' - 6,
+# 'Movie Genre' - 7, 'IMDB Rating' - 8, 'IMDB Votes' - 9, 'Content Rating' - 10, 'Directors' - 11, 'Authors' - 12, 'Actors' - 13, 'Film ID' - 14]
 
-# outwriter = csv.writer(outfile, delimiter=",", quoting=csv.QUOTE_NONE)
-
-outwriter_awards = csv.writer(awards, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_genre = csv.writer(genre, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_imbd = csv.writer(imbd, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_content_rating = csv.writer(content_rating, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_wrote_the = csv.writer(wrote_the, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_act_in = csv.writer(act_in, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_direct_the = csv.writer(direct_the, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_film = csv.writer(film, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_actor = csv.writer(actor, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_director = csv.writer(director, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_author = csv.writer(author, delimiter=",", quoting=csv.QUOTE_NONE)
-outwriter_movie_person = csv.writer(movie_person, delimiter=",", quoting=csv.QUOTE_NONE)
+TABLES = {"Movie_Person": [[11, 12, 13], set()],
+          "Author": [[12], set()],
+          "Actor": [[13], set()],
+          "Director": [[11], set()],
+          "Film": [[1, 3, 5, 6, 14], set()],
+          "Awards": [[14, 2, 4], set()],
+          "Genre": [[7], set()],
+          "IMDB": [[14, 9, 8], set()],
+          "Content_Rating": [[10], set()],
+          "Wrote_The": [[14, 12], set()],
+          "Act_In": [[14, 13], set()],
+          "Direct_The": [[14, 11], set()],
+          "Type_Of": [[14, 7], set()],
+          "Rate": [[14, 10], set()]
+          }
+RELATIONSHIPS = {"Wrote_The", "Act_In", "Direct_The", "Type_Of", "Rate"}
 
 # process_file goes over all rows in original csv file, and sends each row to process_row()
-# DO NOT CHANGE!!!
+
 def process_file():
     with ZipFile('archive.zip') as zf:
         with zf.open('oscars_df.csv', 'r') as infile:
@@ -68,66 +57,101 @@ def process_file():
 
                 process_row(row)
 
+
     # flush and close the file. close all of your files.
-    awards.close()
-    genre.close()
-    imbd.close()
-    content_rating.close()
-    wrote_the.close()
-    act_in.close()
-    direct_the.close()
-    film.close()
-    actor.close()
-    director.close()
-    author.close()
-    movie_person.close()
+    # for table in TABLES:
+    #     table.close()
+
 
 # return a list of all the inner values in the given list_value.
 # you should use this to handle value in the original table which
 # contains an inner list of values.
-# DO NOT CHANGE!!!
 def split_list_value(list_value):
     return list_value.split("&&")
 
 # process_row should splits row into the different csv table files
-# CHANGE!!!
-# ['' - 0, 'Film' - 1, 'Oscar Year' - 2, 'Film Studio/Producer(s)' - 3, 'Award' - 4, 'Year of Release' - 5, 'Movie Time' - 6,
-# 'Movie Genre' - 7, 'IMDB Rating' - 8, 'IMDB Votes' - 9, 'Content Rating' - 10, 'Directors' - 11, 'Authors' - 12, 'Actors' - 13, 'Film ID' - 14]
 def process_row(row):
-    # print("              *****************              ")
-    # print(row)
-    outwriter_awards.writerow([row[1], row[14], row[2], row[4]])
-    outwriter_genre.writerow([row[1], row[14], row[7]])
-    outwriter_imbd.writerow([row[1], row[14], row[9], row[8]])
-    outwriter_content_rating.writerow([row[1], row[14], row[10]])
-    outwriter_wrote_the.writerow([row[12], row[1], row[14]])
-    outwriter_act_in.writerow([row[13], row[1], row[14]])
-    outwriter_direct_the.writerow([row[11], row[1], row[14]])
-    outwriter_film.writerow([row[1], row[14], row[5], row[6], row[3]])
-    print([row[13]])
-    outwriter_actor.writerow([row[13]])
-    outwriter_director.writerow([row[11]])
-    outwriter_author.writerow([row[12]])
-    # outwriter_movie_person.writerow()
+    if row[0] == '':
+        return
+    for table in TABLES:
+        idxes = TABLES[table][0]
+        if table == "Author" or table == "Actor" or table == "Director" or table == "Genre":
+            # idx = TABLES[table][0][0]
+            splits_val = split_list_value(row[idxes[0]])
+            for elem in splits_val:
+                if not elem: break
+                TABLES[table][1].add(elem)
+
+        elif table in RELATIONSHIPS:
+            # idx = TABLES[table][0][1]
+            splits_val = split_list_value(row[idxes[1]])
+            for genre in splits_val:
+                if not genre: break
+                TABLES[table][1].add((row[idxes[0]], genre))
+
+        elif table == "Movie_Person":
+            idxes = TABLES[table][0]
+            for i in idxes:
+                for name in split_list_value(row[i]):
+                    if not name: break
+                    TABLES[table][1].add(name)
+
+        else:
+            idxes = TABLES[table][0]
+            attributes = []
+            for i in idxes:
+                if not row[i]: break
+                attributes.append(row[i])
+            TABLES[table][1].add(tuple(attributes))
+
+    write_to_csv()
 
 
-    # outwriter.writerow()
+def write_to_csv():
+    titles = get_names()
+    for table in TABLES:
+        out_file = open(f'{table}.csv', 'w')
+        out_writer = csv.writer(out_file, delimiter=",",
+                                quoting=csv.QUOTE_NONE)
+        if table == 'Movie_Person':
+            movie_person_title = f'{titles[1]}/{titles[2]}/{titles[3]}'
+            out_writer.writerow([movie_person_title])
+        else:
+            out_writer.writerow([titles[title] for title in TABLES[table][0]])
+
+        out_writer.writerows(TABLES[table][1])
+
+        out_file.close()
+
 # return the list of all tables
-# CHANGE!!!
+
 def get_names():
-    return ["awards",
-            "genre",
-            "imbd",
-            "content_rating",
-            "wrote_the",
-            "act_in",
-            "direct_the",
-            "film",
-            "actor",
-            "director",
-            "author",
-            "movie_person"]
+    return [
+        '',
+        'Film',
+        'Oscar Year',
+        'Film Studio/Producer(s)',
+        'Award',
+        'Year of Release',
+        'Movie Time',
+        'Movie Genre',
+        'IMDB Rating',
+        'IMDB Votes',
+        'Content Rating',
+        'Directors',
+        'Authors',
+        'Actors',
+        'Film ID',
+    ]
+
 
 if __name__ == "__main__":
-    process_file()
 
+    # write_to_csv()
+    process_file()
+    # for i in list(TABLES['Movie_Person'][1]):
+    #     print(i)
+
+    # print(TABLES['Wrote_The'][1])
+    # print(TABLES["Type Of"])
+    # print(TABLES["Genre"])
